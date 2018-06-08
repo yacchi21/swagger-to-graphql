@@ -100,7 +100,7 @@ export const getAllEndPoints = (schema: SwaggerSchema, refs: RefType): {[string]
             request: args,
             url,
             method: method
-          }, '');
+          }, '', schema.parameters);
         },
         mutation: isMutation
       };
