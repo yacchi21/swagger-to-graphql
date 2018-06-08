@@ -17,7 +17,7 @@ const getGQLTypeNameFromURL = (method: string, url: string) => {
   return `${method}${fromUrl}`;
 };
 
-const getSuccessResponse = (responses: Responses) => {
+const getSuccessResponse = (responses: Responses, refResolver) => {
   let resp;
 
   if (!responses) return null;
@@ -26,6 +26,10 @@ const getSuccessResponse = (responses: Responses) => {
     resp = responses[code];
     return code[0] === '2';
   });
+
+  if (resp && resp.$ref) {
+    resp = refResolver.get(resp.$ref);
+  }
 
   return resp && resp.schema;
 };
@@ -89,7 +93,7 @@ export const getAllEndPoints = (schema: SwaggerSchema, refs: RefType): {[string]
       const endpoint: Endpoint = {
         parameters,
         description: obj.description,
-        response: getSuccessResponse(obj.responses),
+        response: getSuccessResponse(obj.responses, refs),
         request: (args: GraphQLParameters, optBaseUrl: string) => {
           const baseUrl = optBaseUrl || serverPath;  // eslint-disable-line no-param-reassign
           if (!baseUrl) {
